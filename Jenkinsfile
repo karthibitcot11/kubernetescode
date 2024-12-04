@@ -15,9 +15,15 @@ node {
         }
     }
 
+    stage('Tag image') {
+        // Tag image with build number and latest
+        app.tag("latest")
+    }
+
     stage('Push image') {
         docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
             app.push("${env.BUILD_NUMBER}")
+            app.push("latest")
         }
     }
 
@@ -25,7 +31,7 @@ node {
         echo "Triggering updatemanifestjob"
 
         // Update job path if the job is in a folder
-        def jobName = 'updatemanifest' // Update this if job is in a folder, e.g., 'folder_name/updatemanifest'
+        def jobName = 'updatemanifest'  // Update this if job is in a folder, e.g., 'folder_name/updatemanifest'
         def jobParams = [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
 
         // Ensure that the job exists and the parameters are correct
